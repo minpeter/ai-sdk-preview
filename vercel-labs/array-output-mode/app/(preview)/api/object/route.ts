@@ -1,12 +1,12 @@
 import { vacationSchemaObject } from "@/lib/schema";
-import { openai } from "@ai-sdk/openai";
+import { customModel } from "@repo/ai-config";
 import { streamObject } from "ai";
 
 export async function POST() {
   const result = await streamObject({
     schema: vacationSchemaObject,
     output: "object",
-    model: openai("gpt-4o-mini"),
+    model: customModel(),
     prompt: "Generate 3 vacation destinations",
   });
 

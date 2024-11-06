@@ -1,5 +1,5 @@
 import { getOrders, getTrackingInformation, ORDERS } from "@/components/data";
-import { openai } from "@ai-sdk/openai";
+import { customModel } from "@repo/ai-config";
 import { convertToCoreMessages, streamText } from "ai";
 import { z } from "zod";
 
@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   const { messages } = await request.json();
 
   const stream = await streamText({
-    model: openai("gpt-4o"),
+    model: customModel("meta-llama-3.1-70b-instruct"),
     system: `\
       - you are a friendly package tracking assistant
       - your responses are concise

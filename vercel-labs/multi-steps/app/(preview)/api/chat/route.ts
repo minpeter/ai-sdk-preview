@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { customModel } from "@repo/ai-config";
 import { convertToCoreMessages, streamText } from "ai";
 import { z } from "zod";
 
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     `;
 
   const result = await streamText({
-    model: openai("gpt-4o-mini"),
+    model: customModel("meta-llama-3.1-70b-instruct"),
     system: systemMessage,
     messages: convertToCoreMessages(messages),
     maxSteps: 10,
@@ -46,12 +46,12 @@ export async function POST(request: Request) {
           content: z
             .string()
             .describe(
-              "The content of the reasoning step. WRITE OUT ALL OF YOUR WORK. Where relevant, prove things mathematically.",
+              "The content of the reasoning step. WRITE OUT ALL OF YOUR WORK. Where relevant, prove things mathematically."
             ),
           nextStep: z
             .enum(["continue", "finalAnswer"])
             .describe(
-              "Whether to continue with another step or provide the final answer",
+              "Whether to continue with another step or provide the final answer"
             ),
         }),
         execute: async (params) => params,

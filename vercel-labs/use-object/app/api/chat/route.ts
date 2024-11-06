@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { customModel } from "@repo/ai-config";
 import { streamObject } from "ai";
 import { expenseSchema } from "./schema";
 
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const { expense }: { expense: string } = await req.json();
 
   const result = await streamObject({
-    model: openai("gpt-4-turbo"),
+    model: customModel(),
     system:
       "You categorize expenses into one of the following categories: " +
       "TRAVEL, MEALS, ENTERTAINMENT, OFFICE SUPPLIES, OTHER." +

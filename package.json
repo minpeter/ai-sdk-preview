@@ -7,6 +7,9 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
+  "dependencies": {
+    "@repo/ai-config": "workspace:*"
+  },
   "devDependencies": {
     "prettier": "^3.2.5",
     "turbo": "^2.2.3",

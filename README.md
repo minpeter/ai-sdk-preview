@@ -1,5 +1,5 @@
 # AI SDK Turborepo (preview)
 
-This package combines various AI SDK preview examples into a monorepo.
+This monorepo combines various AI SDK preview examples, modified by FriendliAI.
 
-You can view the original code at [Vercel Labs GitHub](https://github.com/vercel-labs/).
+You can view the original code on [Vercel Labs GitHub](https://github.com/vercel-labs/).
