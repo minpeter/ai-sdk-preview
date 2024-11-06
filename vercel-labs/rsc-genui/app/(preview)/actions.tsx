@@ -1,5 +1,5 @@
 import { Message, TextStreamMessage } from "@/components/message";
-import { openai } from "@ai-sdk/openai";
+import { customModel } from "@repo/ai-config";
 import { CoreMessage, generateId } from "ai";
 import {
   createAI,
@@ -46,7 +46,7 @@ const sendMessage = async (message: string) => {
   const textComponent = <TextStreamMessage content={contentStream.value} />;
 
   const { value: stream } = await streamUI({
-    model: openai("gpt-4o"),
+    model: customModel(),
     system: `\
       - you are a friendly home automation assistant
       - reply in lower case
@@ -147,10 +147,10 @@ const sendMessage = async (message: string) => {
               high: z.number(),
             }),
             lights: z.array(
-              z.object({ name: z.string(), status: z.boolean() }),
+              z.object({ name: z.string(), status: z.boolean() })
             ),
             locks: z.array(
-              z.object({ name: z.string(), isLocked: z.boolean() }),
+              z.object({ name: z.string(), isLocked: z.boolean() })
             ),
           }),
         }),
