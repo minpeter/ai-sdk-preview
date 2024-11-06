@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     `;
 
   const result = await streamText({
-    model: customModel(),
+    model: customModel("meta-llama-3.1-70b-instruct"),
     system: systemMessage,
     messages: convertToCoreMessages(messages),
     maxSteps: 10,

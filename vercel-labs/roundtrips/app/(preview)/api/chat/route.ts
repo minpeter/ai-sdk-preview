@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   const { messages } = await request.json();
 
   const stream = await streamText({
-    model: customModel(),
+    model: customModel("meta-llama-3.1-70b-instruct"),
     system: `\
       - you are a friendly package tracking assistant
       - your responses are concise
