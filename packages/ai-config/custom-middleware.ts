@@ -130,6 +130,8 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
                 console.log(`extractedJson: ${extractedJson}`);
                 const parsedToolCall = JSON.parse(extractedJson[0]);
 
+                // const extractedJson = extractJson(toolCall);
+                // const parsedToolCall = fixBrokenJSON(extractedJson[0]);
                 controller.enqueue({
                   type: "tool-call",
                   toolCallType: "function",
