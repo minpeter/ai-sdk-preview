@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     model: customModel("meta-llama-3.1-70b-instruct"),
     system: systemMessage,
     messages: convertToCoreMessages(messages),
-    maxSteps: 10,
+    maxSteps: 2,
     experimental_toolCallStreaming: true,
     tools: {
       addAReasoningStep: {
@@ -54,7 +54,11 @@ export async function POST(request: Request) {
               "Whether to continue with another step or provide the final answer"
             ),
         }),
-        execute: async (params) => params,
+        execute: async (params) => {
+          // console.log("addAReasoningStep called");
+          // console.log(params);
+          return params;
+        },
       },
     },
   });
