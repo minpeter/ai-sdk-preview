@@ -10,7 +10,7 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
 
     console.log(`params: ${JSON.stringify(params, null, 2)}`);
     return {
-      //   ...params,
+      ...params,
       inputFormat: "messages",
       mode: {
         type: "regular",
