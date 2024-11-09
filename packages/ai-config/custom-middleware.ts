@@ -15,15 +15,20 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
         const toolCalls = message.content.filter(
           (content) => content.type === "tool-call"
         );
-        if (toolCalls.length > 0) {
-          return {
-            role: "assistant",
-            content: toolCalls.map(() => ({
-              type: "text",
-              text: "tool call detected",
-            })),
-          };
-        }
+
+        message.content.map((content) => {
+          if (content.type === "tool-call") {
+            return {
+              role: "assistant",
+              content: toolCalls.map(() => ({
+                type: "text",
+                text: `<tool_call>"name": "${content.toolName}", "arguments": ${content.args}</tool_call>`,
+              })),
+            };
+          } else {
+            //
+          }
+        });
       }
 
       if (message.role === "tool") {
@@ -32,8 +37,9 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
           content: [
             {
               type: "text",
-              //   text: `<tool_response>${JSON.stringify(message.content)}</tool_response>`,
-              text: "tool response detected",
+              text: message.content
+                .map((content) => `<tool_response>${content}</tool_response>`)
+                .join("\n"),
             },
           ],
         };
@@ -47,7 +53,11 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
         ? [
             {
               role: "system",
-              content: HermesToolCallPrompt + "\n" + processedPrompt[0].content,
+              content:
+                "*Never perform two tool_calls in one turn*".toUpperCase() +
+                HermesToolCallPrompt +
+                "\n" +
+                processedPrompt[0].content,
             },
             ...processedPrompt.slice(1),
           ]
@@ -59,7 +69,9 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
             ...processedPrompt,
           ];
 
-    // console.log(`params: ${JSON.stringify(toolSystemPrompt, null, 2)}`);
+    console.log(
+      `params: ${JSON.stringify(toolSystemPrompt.slice(1), null, 2)}`
+    );
 
     return {
       ...params,
@@ -90,7 +102,6 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
       LanguageModelV1StreamPart
     >({
       transform(chunk, controller) {
-        console.log(`chunk: ${JSON.stringify(chunk, null, 2)}`);
         if (chunk.type === "text-delta") {
           generatedText += chunk.textDelta;
 
@@ -114,7 +125,11 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
 
             toolCallString.forEach((toolCall) => {
               try {
-                const parsedToolCall = JSON.parse(toolCall);
+                const extractedJson = extractJson(toolCall);
+                console.log(`toolCall: ${toolCall}`);
+                console.log(`extractedJson: ${extractedJson}`);
+                const parsedToolCall = JSON.parse(extractedJson[0]);
+
                 controller.enqueue({
                   type: "tool-call",
                   toolCallType: "function",
@@ -125,14 +140,20 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
               } catch (e) {
                 console.log("error while parsing tool call");
                 console.log(toolCall);
-                console.log(e);
+
+                controller.enqueue({
+                  type: "text-delta",
+                  textDelta: `ERROR ON PARSING TOOL CALL: ${toolCall}`,
+                });
+                // console.log(e);
               }
             });
           }
 
           controller.enqueue(chunk);
+        } else {
+          controller.enqueue(chunk);
         }
-        controller.enqueue(chunk);
       },
 
       flush() {
@@ -148,3 +169,32 @@ export const customMiddleware: Experimental_LanguageModelV1Middleware = {
     };
   },
 };
+
+function extractJson(text: string): string[] {
+  const jsonStrings: string[] = [];
+  const stack: number[] = [];
+  let startIdx: number | null = null;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+
+    if (char === "{") {
+      if (stack.length === 0) {
+        startIdx = i;
+      }
+      stack.push(i);
+    } else if (char === "}") {
+      stack.pop();
+      if (stack.length === 0 && startIdx !== null) {
+        const jsonStr = text.slice(startIdx, i + 1);
+        try {
+          JSON.parse(jsonStr);
+          jsonStrings.push(jsonStr);
+        } catch {}
+        startIdx = null;
+      }
+    }
+  }
+
+  return jsonStrings;
+}

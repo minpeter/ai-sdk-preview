@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     model: customModel("meta-llama-3.1-70b-instruct"),
     system: systemMessage,
     messages: convertToCoreMessages(messages),
-    maxSteps: 2,
+    maxSteps: 10,
     experimental_toolCallStreaming: true,
     tools: {
       addAReasoningStep: {
