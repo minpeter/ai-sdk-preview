@@ -4,6 +4,7 @@ import {
   LanguageModelV1StreamPart,
 } from "ai";
 import { HermesToolCallPrompt, llamaToolPrompt } from "./prompts";
+import { isParsableJson } from "@ai-sdk/provider-utils";
 
 export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
   // @ts-ignore
@@ -91,6 +92,8 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
     const { stream, ...rest } = await doStream();
 
     let generatedText = "";
+    let initChunkCount = 4;
+    let initChunkUsed = false;
     let toolCallString: string[] = [];
     // 페너럴 툴 콜에 대해서 인덱스 별로 호출되었는지 감지하기 위한 변수
     let toolCallStartIndex: number = -1;
@@ -104,18 +107,29 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
       transform(chunk, controller) {
         if (chunk.type === "text-delta") {
           generatedText += chunk.textDelta;
+          initChunkCount -= 1;
           console.log(`chunk.textDelta: ${chunk.textDelta}`);
 
-          if (toolCallStartIndex >= 0) {
+          if (initChunkCount > 0) {
+            // do nothing
+            console.log("initChunkCount: ", initChunkCount);
+          } else if (toolCallStartIndex >= 0) {
             // toolCallString += chunk.textDelta;
             if (!toolCallString[toolCallStartIndex]) {
               toolCallString[toolCallStartIndex] = "";
             }
-            toolCallString[toolCallStartIndex] += chunk.textDelta;
+            // FIXME: <tool_call> Temporarily fixes token splitting issue, should be fixed when streaming
+            // toolCallString[toolCallStartIndex] += chunk.textDelta;
+            toolCallString[toolCallStartIndex] = generatedText.replace(
+              "<tool_call>",
+              ""
+            );
 
             // console.log(`tool call string: ${toolCallString}`);
-          } else if (chunk.textDelta.includes("<tool_call>")) {
+            // } else if (chunk.textDelta.includes("<tool_call>")) {
+          } else if (generatedText.includes("<tool_call>")) {
             console.log("tool call detected!!!");
+            initChunkUsed = true;
             toolCallStartIndex += 1;
           } else {
             controller.enqueue(chunk);
@@ -150,6 +164,13 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
                 });
                 // console.log(e);
               }
+            });
+          }
+
+          if (!initChunkUsed) {
+            controller.enqueue({
+              type: "text-delta",
+              textDelta: generatedText,
             });
           }
 

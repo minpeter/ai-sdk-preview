@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     `;
 
   const result = await streamText({
-    model: hermesModel("meta-llama-3.1-8b-instruct"),
+    model: hermesModel("meta-llama-3.1-70b-instruct"),
     system: systemMessage,
     messages: convertToCoreMessages(messages),
     maxSteps: 10,
