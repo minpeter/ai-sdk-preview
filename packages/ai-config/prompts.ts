@@ -121,3 +121,9 @@ For each function call return a json object with function name and arguments wit
 //     {%- endif %}
 // {%- endfor %}
 // {{- \" </tools>\" }}
+
+export const llamaToolPrompt = `
+You have access to the following functions. To call a function, please respond with JSON for a function call.
+Respond in the format {"name": function name, "parameters": dictionary of argument name and its value}.
+Do not use variables. 
+`;
