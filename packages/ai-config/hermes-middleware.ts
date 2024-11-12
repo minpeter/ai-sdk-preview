@@ -3,8 +3,7 @@ import {
   generateId,
   LanguageModelV1StreamPart,
 } from "ai";
-import { HermesToolCallPrompt, llamaToolPrompt } from "./prompts";
-import { isParsableJson } from "@ai-sdk/provider-utils";
+import { HermesToolCallPrompt } from "./prompts";
 
 export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
   // @ts-ignore
@@ -23,7 +22,7 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
               role: "assistant",
               content: toolCalls.map(() => ({
                 type: "text",
-                text: `<tool_call>"name": "${content.toolName}", "arguments": ${content.args}</tool_call>`,
+                text: `<tool_call>"name": "${content.toolName}", "parameters": ${content.args}</tool_call>`,
               })),
             };
           } else {
@@ -39,7 +38,13 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
             {
               type: "text",
               text: message.content
-                .map((content) => `<tool_response>${content}</tool_response>`)
+                .map(
+                  (content) =>
+                    `<tool_response>${JSON.stringify({
+                      toolName: content.toolName,
+                      result: content.result,
+                    })}</tool_response>`
+                )
                 .join("\n"),
             },
           ],
@@ -108,7 +113,7 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
         if (chunk.type === "text-delta") {
           generatedText += chunk.textDelta;
           initChunkCount -= 1;
-          console.log(`chunk.textDelta: ${chunk.textDelta}`);
+          // console.log(`chunk.textDelta: ${chunk.textDelta}`);
 
           if (initChunkCount > 0) {
             // do nothing
@@ -147,12 +152,21 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
 
                 // const extractedJson = extractJson(toolCall);
                 // const parsedToolCall = fixBrokenJSON(extractedJson[0]);
+
+                console.log({
+                  type: "tool-call",
+                  toolCallType: "function",
+                  toolCallId: generateId(),
+                  toolName: parsedToolCall.name,
+                  args: JSON.stringify(parsedToolCall.parameters),
+                });
+
                 controller.enqueue({
                   type: "tool-call",
                   toolCallType: "function",
                   toolCallId: generateId(),
                   toolName: parsedToolCall.name,
-                  args: JSON.stringify(parsedToolCall.arguments),
+                  args: JSON.stringify(parsedToolCall.parameters),
                 });
               } catch (e) {
                 console.log("error while parsing tool call");
