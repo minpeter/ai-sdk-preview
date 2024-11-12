@@ -117,6 +117,11 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
 
           if (initChunkCount > 0) {
             // do nothing
+
+            initChunkUsed = false;
+
+            console.log("generatedText", generatedText);
+
             console.log("initChunkCount: ", initChunkCount);
           } else if (toolCallStartIndex >= 0) {
             // toolCallString += chunk.textDelta;
@@ -137,6 +142,17 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
             initChunkUsed = true;
             toolCallStartIndex += 1;
           } else {
+            if (!initChunkUsed) {
+              console.log("!!! initChunkUsed: ", initChunkUsed);
+
+              controller.enqueue({
+                type: "text-delta",
+                textDelta: generatedText,
+              });
+              initChunkUsed = true;
+            }
+
+            console.log("chunk text: ", chunk);
             controller.enqueue(chunk);
           }
         } else if (chunk.type === "finish") {
@@ -181,13 +197,9 @@ export const hermesToolMiddleware: Experimental_LanguageModelV1Middleware = {
             });
           }
 
-          if (!initChunkUsed) {
-            controller.enqueue({
-              type: "text-delta",
-              textDelta: generatedText,
-            });
-          }
+          console.log("generated text: ", generatedText);
 
+          // stop token
           controller.enqueue(chunk);
         } else {
           controller.enqueue(chunk);
