@@ -9,7 +9,11 @@ import Link from "next/link";
 import { useChat } from "ai/react";
 
 export default function Home() {
-  const { messages, handleSubmit, input, setInput, append } = useChat();
+  const { messages, handleSubmit, input, setInput, append } = useChat({
+    onError(error) {
+      console.error(error);
+    },
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [messagesContainerRef, messagesEndRef] =
