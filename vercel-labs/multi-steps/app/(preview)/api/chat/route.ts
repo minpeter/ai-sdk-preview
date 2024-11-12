@@ -1,4 +1,4 @@
-import { customModel } from "@repo/ai-config";
+import { customModel, hermesModel, llamaModel } from "@repo/ai-config";
 import { convertToCoreMessages, streamText } from "ai";
 import { z } from "zod";
 
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     `;
 
   const result = await streamText({
-    model: customModel("meta-llama-3.1-70b-instruct"),
+    model: hermesModel("meta-llama-3.1-8b-instruct"),
     system: systemMessage,
     messages: convertToCoreMessages(messages),
     maxSteps: 10,
