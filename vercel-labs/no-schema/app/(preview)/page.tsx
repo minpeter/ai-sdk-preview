@@ -2,7 +2,7 @@
 
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { experimental_useObject } from "ai/react";
+import { experimental_useObject as useObject } from "ai/react";
 import { Code } from "@/components/code";
 import { useWindowSize } from "react-use";
 import { Overview } from "@/components/overview";
@@ -10,12 +10,14 @@ import { z } from "zod";
 
 export default function Home() {
   const [prompt, setPrompt] = useState<string>("");
-  const [source, setSource] = useState<string>("");
+  const [source, setSource] = useState<string>(
+    "https://en.wikipedia.org/wiki/Large_language_model"
+  );
 
   const [isOverviewVisible, setIsOverviewVisible] = useState<boolean>(true);
   const { width } = useWindowSize();
 
-  const { submit, isLoading, object } = experimental_useObject({
+  const { submit, isLoading, object } = useObject({
     api: "/api/chat",
     schema: z.unknown(),
     onFinish({ object }) {
@@ -45,11 +47,11 @@ export default function Home() {
               const form = event.target as HTMLFormElement;
 
               const prompt = form.elements.namedItem(
-                "prompt",
+                "prompt"
               ) as HTMLInputElement;
 
               const source = form.elements.namedItem(
-                "source",
+                "source"
               ) as HTMLInputElement;
 
               if (prompt.value.trim() && source.value.trim()) {
@@ -77,7 +79,7 @@ export default function Home() {
               <input
                 name="prompt"
                 className="bg-zinc-100 rounded-md px-2 py-1.5 w-full outline-none dark:bg-zinc-700 text-zinc-800 dark:text-zinc-300 disabled:text-zinc-400 disabled:cursor-not-allowed placeholder:text-zinc-400"
-                placeholder="Describe your schema..."
+                placeholder="Describe your schema... (e.g. 'timeline' or 'timeline of this topic'"
                 value={prompt}
                 onChange={(event) => {
                   setPrompt(event.target.value);

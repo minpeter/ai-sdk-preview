@@ -1,5 +1,5 @@
 {
-  "name": "ai-sdk-preview-no-schema",
+  "name": "no-schema",
   "version": "0.1.0",
   "private": true,
   "scripts": {
