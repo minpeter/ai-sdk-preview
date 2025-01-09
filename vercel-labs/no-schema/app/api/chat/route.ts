@@ -29,6 +29,7 @@ export async function POST(req: Request) {
     `,
     prompt,
     output: "no-schema",
+    temperature: 0,
     onFinish({ object }) {
       // save object to database
     },

@@ -79,7 +79,7 @@ export default function Home() {
               <input
                 name="prompt"
                 className="bg-zinc-100 rounded-md px-2 py-1.5 w-full outline-none dark:bg-zinc-700 text-zinc-800 dark:text-zinc-300 disabled:text-zinc-400 disabled:cursor-not-allowed placeholder:text-zinc-400"
-                placeholder="Describe your schema... (e.g. 'timeline' or 'timeline of this topic'"
+                placeholder="Describe your schema... (e.g. 'timeline' or 'Timeline for this topic grouped by year'"
                 value={prompt}
                 onChange={(event) => {
                   setPrompt(event.target.value);
